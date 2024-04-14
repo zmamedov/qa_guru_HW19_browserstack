@@ -1,8 +1,11 @@
 import os
+
+import allure
 import pytest
 from dotenv import load_dotenv
 from appium.options.android import UiAutomator2Options
 from selene import browser
+from appium import webdriver
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -10,11 +13,12 @@ def load_env():
     load_dotenv()
 
 
+username = os.getenv("USERNAME")
+accesskey = os.getenv("ACCESS_KEY")
+
+
 @pytest.fixture(scope='function', autouse=True)
 def mobile_management():
-    username = os.getenv("USERNAME")
-    accesskey = os.getenv("ACCESS_KEY")
-
     options = UiAutomator2Options().load_capabilities({
         "platformName": "android",
         "platformVersion": "9.0",
@@ -27,15 +31,21 @@ def mobile_management():
             "buildName": "browserstack-build-1",
             "sessionName": "BStack first_test",
 
-            "userName": f'{username}',
-            "accessKey": f'{accesskey}'
+            "userName": username,
+            "accessKey": accesskey,
         }
     })
 
-    browser.config.driver_remote_url = 'http://hub.browserstack.com/wd/hub'
-    browser.config.driver_options = options
+    browser.config.driver = webdriver.Remote('http://hub.browserstack.com/wd/hub', options=options)
     browser.config.timeout = float(os.getenv('timeout', '10.0'))
 
     yield
+
+    # allure.attach(
+    #     browser.driver.get_screenshot_as_png(), name='Screenshot', attachment_type=allure.attachment_type.PNG
+    # )
+    # allure.attach(
+    #     browser.driver.page_source, name='XML screen', attachment_type=allure.attachment_type.XML
+    # )
 
     browser.quit()
