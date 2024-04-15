@@ -1,11 +1,11 @@
 import os
-
-import allure
 import pytest
 from dotenv import load_dotenv
 from appium.options.android import UiAutomator2Options
 from selene import browser
 from appium import webdriver
+
+from qa_guru_HW19_browserstack.utils import attach
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -39,11 +39,10 @@ def mobile_management():
 
     yield
 
-    # allure.attach(
-    #     browser.driver.get_screenshot_as_png(), name='Screenshot', attachment_type=allure.attachment_type.PNG
-    # )
-    # allure.attach(
-    #     browser.driver.page_source, name='XML screen', attachment_type=allure.attachment_type.XML
-    # )
+    attach.add_screenshot(browser)
+    attach.add_xml(browser)
+    session_id = browser.driver.session_id
 
     browser.quit()
+
+    attach.add_video(session_id, login, accesskey)
