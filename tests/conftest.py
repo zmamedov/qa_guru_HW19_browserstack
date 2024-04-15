@@ -13,12 +13,10 @@ def load_env():
     load_dotenv()
 
 
-username = os.getenv("USERNAME")
-accesskey = os.getenv("ACCESS_KEY")
-
-
 @pytest.fixture(scope='function', autouse=True)
 def mobile_management():
+    login = os.getenv("LOGIN")
+    accesskey = os.getenv("ACCESS_KEY")
     options = UiAutomator2Options().load_capabilities({
         "platformName": "android",
         "platformVersion": "9.0",
@@ -31,7 +29,7 @@ def mobile_management():
             "buildName": "browserstack-build-1",
             "sessionName": "BStack first_test",
 
-            "userName": username,
+            "userName": login,
             "accessKey": accesskey,
         }
     })
